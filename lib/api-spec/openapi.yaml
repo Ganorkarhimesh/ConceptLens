@@ -1,0 +1,325 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: conceptlens
+    description: Diagnostic learning operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /questions:
+    get:
+      operationId: listQuestions
+      tags: [conceptlens]
+      summary: List diagnostic questions
+      responses:
+        "200":
+          description: Diagnostic question set
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Question"
+  /assessments:
+    post:
+      operationId: submitAssessment
+      tags: [conceptlens]
+      summary: Analyze a student's diagnostic assessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssessmentInput"
+      responses:
+        "200":
+          description: Results with misconception analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assessment"
+        "422":
+          description: Invalid assessment submission
+  /assessments/{assessment_id}:
+    get:
+      operationId: getAssessment
+      tags: [conceptlens]
+      summary: Retrieve an assessment and its analysis
+      parameters:
+        - name: assessment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Assessment analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assessment"
+        "404":
+          description: Assessment not found
+  /assessments/{assessment_id}/recovery/{language}:
+    get:
+      operationId: getRecovery
+      tags: [conceptlens]
+      summary: Get localized recovery for the assessment's focus concept
+      parameters:
+        - name: assessment_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: language
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [English, Hindi, Marathi]
+      responses:
+        "200":
+          description: Recovery lesson
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recovery"
+        "404":
+          description: Assessment not found
+  /assessments/{assessment_id}/reassess:
+    post:
+      operationId: submitReassessment
+      tags: [conceptlens]
+      summary: Submit a targeted reassessment answer and update mastery
+      parameters:
+        - name: assessment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReassessmentInput"
+      responses:
+        "200":
+          description: Reassessment result and updated mastery
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reassessment"
+        "404":
+          description: Assessment not found
+  /student-dashboard:
+    get:
+      operationId: getStudentDashboard
+      tags: [conceptlens]
+      summary: Get the student dashboard
+      responses:
+        "200":
+          description: Student mastery and recent learning activity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentDashboard"
+  /teacher-dashboard:
+    get:
+      operationId: getTeacherDashboard
+      tags: [conceptlens]
+      summary: Get class-level misconception analytics
+      responses:
+        "200":
+          description: Class summary, concept weaknesses, and student list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeacherDashboard"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    Question:
+      type: object
+      required: [id, concept, prompt, options, order]
+      properties:
+        id: { type: string }
+        concept: { type: string }
+        prompt: { type: string }
+        options:
+          type: array
+          items: { type: string }
+        order: { type: integer }
+    AssessmentInput:
+      type: object
+      required: [student_name, answers]
+      properties:
+        student_name: { type: string, minLength: 1 }
+        answers:
+          type: array
+          minItems: 5
+          maxItems: 5
+          items:
+            $ref: "#/components/schemas/AnswerInput"
+    AnswerInput:
+      type: object
+      required: [question_id, answer]
+      properties:
+        question_id: { type: string }
+        answer: { type: string }
+    AnalysisResult:
+      type: object
+      required:
+        - question_id
+        - prompt
+        - selected_answer
+        - correct_answer
+        - is_correct
+        - concept
+        - misconception
+        - root_cause
+        - prerequisite_gap
+        - mastery_score
+        - explanation
+        - worked_example
+        - learning_tip
+        - practice_questions
+      properties:
+        question_id: { type: string }
+        prompt: { type: string }
+        selected_answer: { type: string }
+        correct_answer: { type: string }
+        is_correct: { type: boolean }
+        concept: { type: string }
+        misconception: { type: ["string", "null"] }
+        root_cause: { type: ["string", "null"] }
+        prerequisite_gap: { type: ["string", "null"] }
+        mastery_score: { type: integer, minimum: 0, maximum: 100 }
+        explanation: { type: string }
+        worked_example: { type: string }
+        learning_tip: { type: string }
+        practice_questions:
+          type: array
+          items: { type: string }
+    Assessment:
+      type: object
+      required: [assessment_id, student_name, score, total, results, focus_result, completed_at]
+      properties:
+        assessment_id: { type: string }
+        student_name: { type: string }
+        score: { type: integer }
+        total: { type: integer }
+        results:
+          type: array
+          items: { $ref: "#/components/schemas/AnalysisResult" }
+        focus_result: { $ref: "#/components/schemas/AnalysisResult" }
+        completed_at: { type: string, format: date-time }
+    Recovery:
+      type: object
+      required: [language, concept, simple_explanation, worked_example, learning_tip, practice_questions]
+      properties:
+        language: { type: string }
+        concept: { type: string }
+        simple_explanation: { type: string }
+        worked_example: { type: string }
+        learning_tip: { type: string }
+        practice_questions:
+          type: array
+          items: { type: string }
+    ReassessmentInput:
+      type: object
+      required: [answer]
+      properties:
+        answer: { type: string }
+    Reassessment:
+      type: object
+      required: [is_correct, resolved, mastery_before, mastery_after, message, question, options, correct_answer, explanation]
+      properties:
+        is_correct: { type: boolean }
+        resolved: { type: boolean }
+        mastery_before: { type: integer }
+        mastery_after: { type: integer }
+        message: { type: string }
+        question: { type: string }
+        options:
+          type: array
+          items: { type: string }
+        correct_answer: { type: string }
+        explanation: { type: string }
+    ConceptMastery:
+      type: object
+      required: [concept, score, needs_attention]
+      properties:
+        concept: { type: string }
+        score: { type: integer }
+        needs_attention: { type: boolean }
+    StudentDashboard:
+      type: object
+      required: [student_name, overall_mastery, concepts_mastered, concepts_needing_attention, recent_assessment, learning_progress, recommended_recovery, concept_mastery]
+      properties:
+        student_name: { type: string }
+        overall_mastery: { type: integer }
+        concepts_mastered: { type: integer }
+        concepts_needing_attention: { type: integer }
+        recent_assessment: { type: string }
+        learning_progress: { type: integer }
+        recommended_recovery: { type: string }
+        concept_mastery:
+          type: array
+          items: { $ref: "#/components/schemas/ConceptMastery" }
+    ConceptWeakness:
+      type: object
+      required: [concept, struggling_percent]
+      properties:
+        concept: { type: string }
+        struggling_percent: { type: integer }
+    TeacherStudent:
+      type: object
+      required: [name, weak_concept, mastery, intervention_status]
+      properties:
+        name: { type: string }
+        weak_concept: { type: string }
+        mastery: { type: integer }
+        intervention_status: { type: string }
+    TeacherDashboard:
+      type: object
+      required: [total_students, average_mastery, students_requiring_intervention, most_difficult_concept, concept_weakness, ai_teacher_insight, students]
+      properties:
+        total_students: { type: integer }
+        average_mastery: { type: integer }
+        students_requiring_intervention: { type: integer }
+        most_difficult_concept: { type: string }
+        concept_weakness:
+          type: array
+          items: { $ref: "#/components/schemas/ConceptWeakness" }
+        ai_teacher_insight: { type: string }
+        students:
+          type: array
+          items: { $ref: "#/components/schemas/TeacherStudent" }
+

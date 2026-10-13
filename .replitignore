@@ -1,0 +1,10 @@
+# The format of this file is identical to `.dockerignore`.
+# It is used to reduce the size of deployed images to make the process of publishing faster.
+
+# No need to store the pnpm store twice.
+.local
+.env
+.env.*
+!backend/.env.example
+backend/data/local_state.json
+backend/data/local_state.json.tmp

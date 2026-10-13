@@ -1,0 +1,105 @@
+{
+  "students": [
+    {
+      "name": "Aarav Sharma",
+      "concept_mastery": {
+        "Fractions": 35,
+        "LCM": 50,
+        "Algebra": 82,
+        "Percentages": 76,
+        "Basic Arithmetic": 92
+      }
+    },
+    {
+      "name": "Ananya Mehta",
+      "concept_mastery": {
+        "Fractions": 42,
+        "LCM": 52,
+        "Algebra": 78,
+        "Percentages": 85,
+        "Basic Arithmetic": 94
+      }
+    },
+    {
+      "name": "Kabir Patil",
+      "concept_mastery": {
+        "Fractions": 28,
+        "LCM": 44,
+        "Algebra": 58,
+        "Percentages": 62,
+        "Basic Arithmetic": 81
+      }
+    },
+    {
+      "name": "Isha Kulkarni",
+      "concept_mastery": {
+        "Fractions": 55,
+        "LCM": 69,
+        "Algebra": 88,
+        "Percentages": 78,
+        "Basic Arithmetic": 95
+      }
+    },
+    {
+      "name": "Rohan Desai",
+      "concept_mastery": {
+        "Fractions": 48,
+        "LCM": 38,
+        "Algebra": 71,
+        "Percentages": 65,
+        "Basic Arithmetic": 58
+      }
+    },
+    {
+      "name": "Sana Khan",
+      "concept_mastery": {
+        "Fractions": 36,
+        "LCM": 53,
+        "Algebra": 47,
+        "Percentages": 82,
+        "Basic Arithmetic": 92
+      }
+    },
+    {
+      "name": "Vihaan Joshi",
+      "concept_mastery": {
+        "Fractions": 62,
+        "LCM": 72,
+        "Algebra": 55,
+        "Percentages": 68,
+        "Basic Arithmetic": 86
+      }
+    },
+    {
+      "name": "Myra Shah",
+      "concept_mastery": {
+        "Fractions": 70,
+        "LCM": 78,
+        "Algebra": 84,
+        "Percentages": 45,
+        "Basic Arithmetic": 89
+      }
+    },
+    {
+      "name": "Arjun Rao",
+      "concept_mastery": {
+        "Fractions": 39,
+        "LCM": 62,
+        "Algebra": 73,
+        "Percentages": 75,
+        "Basic Arithmetic": 95
+      }
+    },
+    {
+      "name": "Diya Sen",
+      "concept_mastery": {
+        "Fractions": 46,
+        "LCM": 42,
+        "Algebra": 58,
+        "Percentages": 52,
+        "Basic Arithmetic": 88
+      }
+    }
+  ],
+  "assessments": {}
+}
